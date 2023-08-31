@@ -49,7 +49,12 @@ class _MovieDetailsState extends State<MovieDetails> {
     Widget content = const Center(child: CircularProgressIndicator());
 
     if (_movie != null) {
-      DateTime date = DateTime.parse(_movie!.releaseDate);
+      DateTime date = DateTime.now();
+
+      if (_movie!.releaseDate.isNotEmpty) {
+        date = DateTime.parse(_movie!.releaseDate);
+      }
+
       String formattedBudget = NumberFormat.compactCurrency(
         locale: 'en_US',
         symbol: '\$',
@@ -99,11 +104,12 @@ class _MovieDetailsState extends State<MovieDetails> {
             children: [
               Column(
                 children: [
-                  DetailContainerItem(
-                    title: 'Release Date',
-                    text: DateFormat.yMMMMd('en_US').format(date),
-                  ),
-                  const SizedBox(height: 4),
+                  _movie!.releaseDate.isNotEmpty
+                      ? DetailContainerItem(
+                          title: 'Release Date',
+                          text: DateFormat.yMMMMd('en_US').format(date),
+                        )
+                      : const SizedBox(height: 4),
                   DetailContainerItem(
                     title: 'Vote',
                     text: _movie!.voteAverage.toStringAsFixed(1),

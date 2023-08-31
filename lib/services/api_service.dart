@@ -4,10 +4,22 @@ import 'package:movies/models/movie.dart';
 import 'package:movies/constants.dart';
 
 class ApiService {
-  static fetchMovies(int page) async {
-    final response = await http.get(Uri.parse(
-      '${Constants.TOP_RATED}&page=$page',
-    ));
+  static fetchMoviesByType(String type, int page) async {
+    final Uri uri;
+
+    if (type == 'now_playing') {
+      uri = Uri.parse('${Constants.NOW_PLAYING_URL}&page=$page');
+    } else if (type == 'top_rated') {
+      uri = Uri.parse('${Constants.TOP_RATED}&page=$page');
+    } else if (type == 'popular') {
+      uri = Uri.parse('${Constants.POPULAR_URL}&page=$page');
+    } else if (type == 'upcoming') {
+      uri = Uri.parse('${Constants.UPCOMING}&page=$page');
+    } else {
+      uri = Uri.parse('${Constants.NOW_PLAYING_URL}&page=$page');
+    }
+
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -32,6 +44,21 @@ class ApiService {
       return movie;
     } else {
       throw Exception('Failed to load movies');
+    }
+  }
+
+  static searchMovie(String query) async {
+    final response =
+        await http.get(Uri.parse('${Constants.SEARCH_URL}&query=$query'));
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+
+      final List<dynamic> jsonData = jsonResponse['results'];
+
+      final movies = jsonData.map((e) => Movie.fromJson(e)).toList();
+
+      return movies;
     }
   }
 }

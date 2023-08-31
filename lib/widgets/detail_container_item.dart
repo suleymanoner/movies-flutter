@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DetailContainerItem extends StatelessWidget {
-  DetailContainerItem({
+  const DetailContainerItem({
     super.key,
     required this.title,
     required this.text,
