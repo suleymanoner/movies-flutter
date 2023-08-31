@@ -17,15 +17,15 @@ class AppTheme {
 
   var elevatedButtonTheme = ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: kColorScheme.primaryContainer,
-      foregroundColor: kColorScheme.onPrimaryContainer,
+      backgroundColor: kColorScheme.primary,
+      foregroundColor: kColorScheme.onPrimary,
     ),
   );
 
   var textTheme = const TextTheme().copyWith(
     titleLarge: GoogleFonts.montserrat(
       fontWeight: FontWeight.bold,
-      color: kColorScheme.onSecondaryContainer,
+      color: kColorScheme.primary,
       fontSize: 20,
     ),
     bodyMedium: GoogleFonts.montserrat(
