@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:movies/models/movie.dart';
+import 'package:movies/screens/movie_list.dart';
 import 'package:movies/services/api_service.dart';
 import 'package:movies/widgets/movie_card.dart';
+import 'package:movies/widgets/movie_carousel_item.dart';
 import 'package:movies/widgets/movie_details.dart';
+import 'package:movies/widgets/carousel_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,9 +15,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Movie> movies = [];
-  final ScrollController _scrollController = ScrollController();
-  int page = 1;
+  List<Movie> nowPlayingMovies = [];
+  List<Movie> topRatedMovies = [];
+  List<Movie> popularMovies = [];
+  List<Movie> upcomingMovies = [];
+
   String errMsg = '';
   bool _isLoading = false;
 
@@ -29,10 +34,24 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isLoading = true;
       });
-      final fetchedMovies = await ApiService.fetchMovies(page);
+
+      final fetchedNowPlayingMovies =
+          await ApiService.fetchMoviesByType('now_playing', 1);
+
+      final fetchedTopRatedMovies =
+          await ApiService.fetchMoviesByType('top_rated', 1);
+
+      final fetchedPopularMovies =
+          await ApiService.fetchMoviesByType('popular', 1);
+
+      final fetchedUpcomingMovies =
+          await ApiService.fetchMoviesByType('upcoming', 1);
 
       setState(() {
-        movies = movies + fetchedMovies;
+        nowPlayingMovies = nowPlayingMovies + fetchedNowPlayingMovies;
+        topRatedMovies = topRatedMovies + fetchedTopRatedMovies;
+        popularMovies = popularMovies + fetchedPopularMovies;
+        upcomingMovies = upcomingMovies + fetchedUpcomingMovies;
         _isLoading = false;
       });
     } catch (error) {
@@ -43,58 +62,58 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _openDetails(Movie movie) {
-    showModalBottomSheet(
-      useSafeArea: true,
-      isScrollControlled: true,
-      context: context,
-      builder: (ctx) => MovieDetails(id: movie.id),
-    );
+  void _goMovieList(String type) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (ctx) => MovieListScreen(type: type),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget content = _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : NotificationListener(
-            onNotification: (notification) {
-              if (notification is ScrollEndNotification &&
-                  _scrollController.position.extentAfter == 0) {
-                setState(() {
-                  page = page + 1;
-                });
-                _fetchMovies();
-              }
-              return false;
-            },
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: movies.length,
-              itemBuilder: (ctx, index) {
-                if (errMsg != '') {
-                  return Center(child: Text(errMsg));
-                }
-                return MovieCard(
-                  movie: movies[index],
-                  onTapMovie: () {
-                    _openDetails(movies[index]);
-                  },
-                );
-              },
-            ),
-          );
-
-    if (errMsg.isNotEmpty) {
-      content = Center(
-        child: Text(
-          errMsg,
-          style: Theme.of(context).textTheme.titleLarge,
+    Widget content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MovieCarouselItem(
+          title: 'Now Playing Movies',
+          onTapTitle: () {
+            _goMovieList('now_playing');
+          },
+          movieList: nowPlayingMovies,
         ),
-      );
+        MovieCarouselItem(
+          title: 'Top Rated Movies',
+          onTapTitle: () {
+            _goMovieList('top_rated');
+          },
+          movieList: topRatedMovies,
+        ),
+        MovieCarouselItem(
+          title: 'Upcoming Movies',
+          onTapTitle: () {
+            _goMovieList('upcoming');
+          },
+          movieList: upcomingMovies,
+        ),
+        MovieCarouselItem(
+          title: 'Popular Movies',
+          onTapTitle: () {
+            _goMovieList('popular');
+          },
+          movieList: popularMovies,
+        ),
+      ],
+    );
+
+    if (_isLoading) {
+      content = const CircularProgressIndicator();
     }
 
     return Scaffold(
-      body: content,
+      body: Center(
+        child: SingleChildScrollView(
+          child: content,
+        ),
+      ),
     );
   }
 }
