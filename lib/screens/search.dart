@@ -82,10 +82,11 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(14),
             child: TextField(
               controller: queryController,
               onChanged: (value) {

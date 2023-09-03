@@ -39,6 +39,7 @@ class _TabsScreenState extends State<TabsScreen> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(activePageTitle),
       ),
