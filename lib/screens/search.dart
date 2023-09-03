@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movies/models/movie.dart';
 import 'package:movies/services/api_service.dart';
-import 'package:movies/widgets/movie_card.dart';
 import 'package:movies/widgets/movie_details.dart';
 import 'package:movies/widgets/search_result_card.dart';
 
@@ -9,7 +8,7 @@ class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() {
+  State<SearchScreen> createState() {
     return _SearchScreenState();
   }
 }
@@ -95,6 +94,7 @@ class _SearchScreenState extends State<SearchScreen> {
               style: Theme.of(context).textTheme.bodyMedium,
               decoration: const InputDecoration(
                 label: Text('Search..'),
+                alignLabelWithHint: true,
               ),
             ),
           ),

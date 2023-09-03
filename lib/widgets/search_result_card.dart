@@ -23,14 +23,20 @@ class SearchResultCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                Constants.BASE_IMG_URL + imgPath,
-                width: 100,
-                height: 150,
-                fit: BoxFit.cover,
-              ),
-            ),
+                borderRadius: BorderRadius.circular(10),
+                child: imgPath.isNotEmpty
+                    ? Image.network(
+                        Constants.BASE_IMG_URL + imgPath,
+                        width: 100,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        'assets/images/broken_image.png',
+                        width: 100,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      )),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(left: 15),
