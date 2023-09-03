@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +6,7 @@ import 'package:movies/widgets/change_password.dart';
 import 'package:movies/widgets/profile_item.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 final ImagePicker _picker = ImagePicker();
@@ -36,36 +36,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _getUserInfo() async {
     try {
-      CollectionReference usersCollection = firestore.collection('users');
+      final prefs = await SharedPreferences.getInstance();
 
-      QuerySnapshot emailQuery = await usersCollection
-          .where(
-            'email',
-            isEqualTo: user.email,
-          )
-          .get();
-
-      if (emailQuery.docs.isNotEmpty) {
-        Map<String, dynamic> userData =
-            emailQuery.docs.first.data() as Map<String, dynamic>;
-
+      if (prefs.containsKey('name') &&
+          prefs.containsKey('surname') &&
+          prefs.containsKey('imgUrl')) {
         setState(() {
-          name = userData['name'];
-          surname = userData['surname'];
+          name = prefs.getString('name') ?? '';
+          surname = prefs.getString('surname') ?? '';
+          imgUrl = prefs.getString('imgUrl') ?? '';
         });
-      }
+      } else {
+        CollectionReference usersCollection = firestore.collection('users');
 
-      final Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('profile_images')
-          .child(user.email!);
+        QuerySnapshot emailQuery = await usersCollection
+            .where(
+              'email',
+              isEqualTo: user.email,
+            )
+            .get();
 
-      final downloadUrl = await storageReference.getDownloadURL();
+        if (emailQuery.docs.isNotEmpty) {
+          Map<String, dynamic> userData =
+              emailQuery.docs.first.data() as Map<String, dynamic>;
 
-      if (downloadUrl.isNotEmpty) {
-        setState(() {
-          imgUrl = downloadUrl;
-        });
+          setState(() {
+            name = userData['name'];
+            surname = userData['surname'];
+          });
+
+          prefs.setString('name', name);
+          prefs.setString('surname', surname);
+        }
+
+        final Reference storageReference = FirebaseStorage.instance
+            .ref()
+            .child('profile_images')
+            .child(user.email!);
+
+        final downloadUrl = await storageReference.getDownloadURL();
+
+        if (downloadUrl.isNotEmpty) {
+          setState(() {
+            imgUrl = downloadUrl;
+          });
+          prefs.setString('imgUrl', imgUrl);
+        }
       }
     } on FirebaseAuthException catch (e) {
       print(e.message);
