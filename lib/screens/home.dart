@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:movies/models/movie.dart';
 import 'package:movies/screens/movie_list.dart';
-import 'package:movies/services/api_service.dart';
 import 'package:movies/widgets/movie_carousel_item.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:movies/providers/movies_provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  List<Movie> nowPlayingMovies = [];
-  List<Movie> topRatedMovies = [];
-  List<Movie> popularMovies = [];
-  List<Movie> upcomingMovies = [];
-
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   String errMsg = '';
   bool _isLoading = false;
 
@@ -32,23 +27,15 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
-      final fetchedNowPlayingMovies =
-          await ApiService.fetchMoviesByType('now_playing', 1);
+      ref.read(nowPlayingMoviesProvider.notifier).fetchNowPlayingMovies(1);
 
-      final fetchedTopRatedMovies =
-          await ApiService.fetchMoviesByType('top_rated', 1);
+      ref.read(topRatedMoviesProvider.notifier).fetchTopRatedMovies(1);
 
-      final fetchedPopularMovies =
-          await ApiService.fetchMoviesByType('popular', 1);
+      ref.read(upcomingMoviesProvider.notifier).fetchUpcomingMovies(1);
 
-      final fetchedUpcomingMovies =
-          await ApiService.fetchMoviesByType('upcoming', 1);
+      ref.read(popularMoviesProvider.notifier).fetchPopularMovies(1);
 
       setState(() {
-        nowPlayingMovies = nowPlayingMovies + fetchedNowPlayingMovies;
-        topRatedMovies = topRatedMovies + fetchedTopRatedMovies;
-        popularMovies = popularMovies + fetchedPopularMovies;
-        upcomingMovies = upcomingMovies + fetchedUpcomingMovies;
         _isLoading = false;
       });
     } catch (error) {
@@ -67,36 +54,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final nowPlayingMoviess = ref.watch(nowPlayingMoviesProvider);
+    final topRatedMoviess = ref.watch(topRatedMoviesProvider);
+    final upcomingMoviess = ref.watch(upcomingMoviesProvider);
+    final popularMoviess = ref.watch(popularMoviesProvider);
+
     Widget content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         MovieCarouselItem(
-          title: 'Now Playing Movies',
+          title: 'Now Playing',
           onTapTitle: () {
-            _goMovieList('now_playing');
+            _goMovieList('Now Playing');
           },
-          movieList: nowPlayingMovies,
+          movieList: nowPlayingMoviess,
         ),
         MovieCarouselItem(
-          title: 'Top Rated Movies',
+          title: 'Top Rated',
           onTapTitle: () {
-            _goMovieList('top_rated');
+            _goMovieList('Top Rated');
           },
-          movieList: topRatedMovies,
+          movieList: topRatedMoviess,
         ),
         MovieCarouselItem(
-          title: 'Upcoming Movies',
+          title: 'Upcoming',
           onTapTitle: () {
-            _goMovieList('upcoming');
+            _goMovieList('Upcoming');
           },
-          movieList: upcomingMovies,
+          movieList: upcomingMoviess,
         ),
         MovieCarouselItem(
-          title: 'Popular Movies',
+          title: 'Popular',
           onTapTitle: () {
-            _goMovieList('popular');
+            _goMovieList('Popular');
           },
-          movieList: popularMovies,
+          movieList: popularMoviess,
         ),
       ],
     );

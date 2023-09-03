@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:movies/models/movie.dart';
-import 'package:movies/services/api_service.dart';
+import 'package:movies/providers/movies_provider.dart';
 import 'package:movies/widgets/movie_card.dart';
 import 'package:movies/widgets/movie_details.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MovieListScreen extends StatefulWidget {
+class MovieListScreen extends ConsumerStatefulWidget {
   const MovieListScreen({
     super.key,
     required this.type,
@@ -13,16 +14,14 @@ class MovieListScreen extends StatefulWidget {
   final String type;
 
   @override
-  State<MovieListScreen> createState() => _MovieListScreenState();
+  ConsumerState<MovieListScreen> createState() => _MovieListScreenState();
 }
 
-class _MovieListScreenState extends State<MovieListScreen> {
+class _MovieListScreenState extends ConsumerState<MovieListScreen> {
   final ScrollController _scrollController = ScrollController();
   int page = 1;
   bool _isLoading = true;
   String errMsg = '';
-
-  List<Movie> movies = [];
 
   @override
   void initState() {
@@ -32,22 +31,19 @@ class _MovieListScreenState extends State<MovieListScreen> {
 
   Future<void> _fetchMovies() async {
     try {
-      List<Movie> fetchedMovies = [];
-
-      if (widget.type == 'now_playing') {
-        fetchedMovies = await ApiService.fetchMoviesByType('now_playing', page);
-      } else if (widget.type == 'top_rated') {
-        fetchedMovies = await ApiService.fetchMoviesByType('top_rated', page);
-      } else if (widget.type == 'popular') {
-        fetchedMovies = await ApiService.fetchMoviesByType('popular', page);
-      } else if (widget.type == 'upcoming') {
-        fetchedMovies = await ApiService.fetchMoviesByType('upcoming', page);
+      if (widget.type == 'Now Playing') {
+        ref.read(nowPlayingMoviesProvider.notifier).fetchNowPlayingMovies(page);
+      } else if (widget.type == 'Top Rated') {
+        ref.read(topRatedMoviesProvider.notifier).fetchTopRatedMovies(page);
+      } else if (widget.type == 'Popular') {
+        ref.read(popularMoviesProvider.notifier).fetchPopularMovies(page);
+      } else if (widget.type == 'Upcmoming') {
+        ref.read(upcomingMoviesProvider.notifier).fetchUpcomingMovies(page);
       } else {
-        fetchedMovies = await ApiService.fetchMoviesByType('now_playing', page);
+        ref.read(nowPlayingMoviesProvider.notifier).fetchNowPlayingMovies(page);
       }
 
       setState(() {
-        movies = movies + fetchedMovies;
         _isLoading = false;
       });
     } catch (error) {
@@ -69,6 +65,24 @@ class _MovieListScreenState extends State<MovieListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Movie> movies = [];
+    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
+    final topRatedMovies = ref.watch(topRatedMoviesProvider);
+    final upcomingMovies = ref.watch(upcomingMoviesProvider);
+    final popularMovies = ref.watch(popularMoviesProvider);
+
+    if (widget.type == 'Now Playing') {
+      movies = nowPlayingMovies;
+    } else if (widget.type == 'Top Rated') {
+      movies = topRatedMovies;
+    } else if (widget.type == 'Popular') {
+      movies = popularMovies;
+    } else if (widget.type == 'Upcoming') {
+      movies = upcomingMovies;
+    } else {
+      movies = nowPlayingMovies;
+    }
+
     Widget content = _isLoading
         ? const Center(child: CircularProgressIndicator())
         : NotificationListener(
@@ -110,7 +124,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('List of Movies'),
+        title: Text('${widget.type} Movies'),
       ),
       body: content,
     );
