@@ -125,10 +125,13 @@ class _LoginScreenState extends State<LoginScreen> {
     Widget content = Column(
       children: [
         const SizedBox(height: 50),
-        Image.asset(
-          'assets/images/movies_logo.png',
-          width: 250,
-          height: 250,
+        Padding(
+          padding: const EdgeInsets.all(6),
+          child: Image.asset(
+            'assets/images/movies_logo.png',
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 3,
+          ),
         ),
         TextFormField(
           decoration: const InputDecoration(
@@ -249,6 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         body: SingleChildScrollView(
           child: Column(
