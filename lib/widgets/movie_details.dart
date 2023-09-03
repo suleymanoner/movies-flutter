@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/constants.dart';
 import 'package:movies/models/movie.dart';
+import 'package:movies/providers/favorites_provider.dart';
 import 'package:movies/services/api_service.dart';
 import 'package:movies/widgets/detail_container_item.dart';
 import 'package:url_launcher/link.dart';
 import 'package:intl/intl.dart';
 
-class MovieDetails extends StatefulWidget {
+class MovieDetails extends ConsumerStatefulWidget {
   const MovieDetails({
     super.key,
     required this.id,
@@ -15,10 +17,10 @@ class MovieDetails extends StatefulWidget {
   final int id;
 
   @override
-  State<MovieDetails> createState() => _MovieDetailsState();
+  ConsumerState<MovieDetails> createState() => _MovieDetailsState();
 }
 
-class _MovieDetailsState extends State<MovieDetails> {
+class _MovieDetailsState extends ConsumerState<MovieDetails> {
   IndividualMovie? _movie;
   bool _isLoading = true;
   String _errMsg = '';
@@ -44,9 +46,21 @@ class _MovieDetailsState extends State<MovieDetails> {
     }
   }
 
+  void _showDialog(String msg) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget content = const Center(child: CircularProgressIndicator());
+    final favMovies = ref.watch(favoriteMoviesProvider);
+    final isFaved = favMovies.any((movie) => movie.id == _movie?.id);
 
     if (_movie != null) {
       DateTime date = DateTime.now();
@@ -194,23 +208,46 @@ class _MovieDetailsState extends State<MovieDetails> {
           },
         ),
         IconButton(
-          icon: const Icon(Icons.star_border),
-          onPressed: () {},
+          onPressed: () {
+            final wasAdded = ref
+                .read(favoriteMoviesProvider.notifier)
+                .toggleMovieFavoritesStatus(_movie!);
+
+            _showDialog(wasAdded
+                ? '${_movie!.originalTitle} faved!'
+                : '${_movie!.originalTitle} removed!');
+          },
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return RotationTransition(
+                turns: Tween(begin: 0.8, end: 1.0).animate(animation),
+                child: child,
+              );
+            },
+            child: Icon(
+              isFaved ? Icons.star : Icons.star_border,
+              key: ValueKey(isFaved),
+            ),
+          ),
         )
       ],
     );
 
-    return SizedBox(
-      height: double.infinity,
-      child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-              children: [
-                bottomSheetBar,
-                content,
-              ],
-            )),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SizedBox(
+        height: double.infinity,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Column(
+                children: [
+                  bottomSheetBar,
+                  content,
+                ],
+              )),
+      ),
     );
   }
 }
