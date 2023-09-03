@@ -21,12 +21,19 @@ class MovieCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                Constants.BASE_IMG_URL + movie.posterPath,
-                width: 170,
-                height: 220,
-                fit: BoxFit.cover,
-              ),
+              child: movie.posterPath.isNotEmpty
+                  ? Image.network(
+                      Constants.BASE_IMG_URL + movie.posterPath,
+                      width: 170,
+                      height: 220,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      'assets/images/broken_image.png',
+                      width: 170,
+                      height: 220,
+                      fit: BoxFit.cover,
+                    ),
             ),
             Expanded(
               child: Column(

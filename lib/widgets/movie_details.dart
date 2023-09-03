@@ -67,11 +67,20 @@ class _MovieDetailsState extends State<MovieDetails> {
 
       content = Column(
         children: [
-          Image.network(
-            Constants.BASE_IMG_URL + _movie!.backdropPath,
-            width: double.infinity,
-            height: 250,
-            fit: BoxFit.cover,
+          Container(
+            child: _movie!.posterPath.isNotEmpty
+                ? Image.network(
+                    Constants.BASE_IMG_URL + _movie!.backdropPath,
+                    width: double.infinity,
+                    height: 250,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    'assets/images/broken_image.png',
+                    width: double.infinity,
+                    height: 250,
+                    fit: BoxFit.cover,
+                  ),
           ),
           const SizedBox(height: 8),
           Text(
