@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "27184461177",
+    "firebase_url": "https://flutter-prep-40ffc-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "flutter-prep-40ffc",
+    "storage_bucket": "flutter-prep-40ffc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27184461177:android:0ca4889dd9e95e79e62ba8",
+        "android_client_info": {
+          "package_name": "com.example.movies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "27184461177-185mavanie1ag2kn9ld7gs02d1po3jd6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB6f5FOrGfKbhIFUSkZm5pyNxamw0INjQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "27184461177-185mavanie1ag2kn9ld7gs02d1po3jd6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:movies/screens/authentication.dart';
 import 'package:movies/themes/app_theme.dart';
-import 'package:movies/screens/tabs.dart';
+import 'package:movies/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -22,6 +29,7 @@ class MyApp extends StatelessWidget {
         cardTheme: AppTheme().cardTheme,
         elevatedButtonTheme: AppTheme().elevatedButtonTheme,
         textTheme: AppTheme().textTheme,
+        snackBarTheme: AppTheme().snackBarTheme,
       ),
       darkTheme: ThemeData.dark().copyWith(
         useMaterial3: true,
@@ -33,10 +41,11 @@ class MyApp extends StatelessWidget {
         cardTheme: AppTheme().darkCardTheme,
         elevatedButtonTheme: AppTheme().darkElevatedButtonTheme,
         textTheme: AppTheme().darkTextTheme,
+        snackBarTheme: AppTheme().snackBarTheme,
       ),
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
-      home: const TabsScreen(),
+      home: const AuthenticationScreen(),
     );
   }
 }
