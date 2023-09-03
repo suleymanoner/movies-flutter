@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movies/screens/authentication.dart';
+import 'package:movies/screens/splash.dart';
 import 'package:movies/themes/app_theme.dart';
 import 'package:movies/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -49,7 +50,10 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
-      home: const AuthenticationScreen(),
+      routes: {
+        '/': (context) => const Splash(),
+        '/auth': (context) => const AuthenticationScreen(),
+      },
     );
   }
 }

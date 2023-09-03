@@ -47,6 +47,15 @@ dependencies:
   firebase_storage: ^11.2.6
   flutter_riverpod: ^2.3.10
   shared_preferences: ^2.2.1
+  lottie: ^2.6.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/movies_icon.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/movies_icon2.png"
 
 dev_dependencies:
   flutter_test:
@@ -75,7 +84,12 @@ flutter:
     - assets/images/default_user.png
     - assets/images/movies_logo.png
     - assets/images/broken_image.png
-    
+    - assets/images/movies_animation.json
+    - assets/images/movies_animation2.json
+    - assets/images/movie.json
+    - assets/images/movie2.json
+    - assets/images/movie3.json
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
