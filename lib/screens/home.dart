@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movies/models/movie.dart';
 import 'package:movies/screens/movie_list.dart';
 import 'package:movies/services/api_service.dart';
-import 'package:movies/widgets/movie_card.dart';
 import 'package:movies/widgets/movie_carousel_item.dart';
-import 'package:movies/widgets/movie_details.dart';
-import 'package:movies/widgets/carousel_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

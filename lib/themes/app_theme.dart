@@ -10,6 +10,10 @@ final kDarkColorScheme = ColorScheme.fromSeed(
 );
 
 class AppTheme {
+  var snackBarTheme = const SnackBarThemeData(
+    backgroundColor: Colors.red,
+  );
+
   var cardTheme = const CardTheme().copyWith(
     color: kColorScheme.secondaryContainer,
     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
