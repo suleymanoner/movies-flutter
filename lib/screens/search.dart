@@ -85,17 +85,23 @@ class _SearchScreenState extends State<SearchScreen> {
       resizeToAvoidBottomInset: false,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: TextField(
-              controller: queryController,
-              onChanged: (value) {
-                _searchMovie(queryController.text);
-              },
-              style: Theme.of(context).textTheme.bodyMedium,
-              decoration: const InputDecoration(
-                label: Text('Search..'),
-                alignLabelWithHint: true,
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 10,
+                right: 10,
+                bottom: 15,
+              ),
+              child: TextField(
+                controller: queryController,
+                onChanged: (value) {
+                  _searchMovie(queryController.text);
+                },
+                style: Theme.of(context).textTheme.bodyMedium,
+                decoration: const InputDecoration(
+                  label: Text('Search..'),
+                  alignLabelWithHint: true,
+                ),
               ),
             ),
           ),
