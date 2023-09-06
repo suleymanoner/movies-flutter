@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:movies/models/movie.dart';
-import 'package:movies/constants.dart';
+import 'package:movies/utils/constants.dart';
 
 class ApiService {
   static fetchMoviesByType(String type, int page) async {

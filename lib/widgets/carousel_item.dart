@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:movies/constants.dart';
+import 'package:movies/utils/constants.dart';
 import 'package:movies/models/movie.dart';
 
 class CarouselItem extends StatelessWidget {

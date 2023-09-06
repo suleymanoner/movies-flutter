@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:movies/constants.dart';
+import 'package:movies/utils/constants.dart';
 import 'package:movies/models/movie.dart';
 import 'package:movies/providers/favorites_provider.dart';
 import 'package:movies/services/api_service.dart';
@@ -235,18 +235,19 @@ class _MovieDetailsState extends ConsumerState<MovieDetails> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.transparent, // added because of snackbar wasn't showing on the screen.
       body: SizedBox(
         height: double.infinity,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Column(
-                children: [
-                  bottomSheetBar,
-                  content,
-                ],
-              )),
+                  children: [
+                    bottomSheetBar,
+                    content,
+                  ],
+                ),
+              ),
       ),
     );
   }

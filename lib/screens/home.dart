@@ -12,7 +12,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  String errMsg = '';
+  String _errMsg = '';
   bool _isLoading = false;
 
   @override
@@ -40,7 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       });
     } catch (error) {
       setState(() {
-        errMsg = 'Failed to load movie!';
+        _errMsg = 'Failed to load movies!';
         _isLoading = false;
       });
     }
@@ -95,6 +95,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (_isLoading) {
       content = const CircularProgressIndicator();
+    }
+
+    if (_errMsg.isNotEmpty) {
+      content = Center(
+        child: Text(
+          _errMsg,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      );
     }
 
     return Scaffold(

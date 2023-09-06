@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movies/screens/authentication.dart';
 import 'package:movies/screens/splash.dart';
 import 'package:movies/themes/app_theme.dart';
-import 'package:movies/firebase_options.dart';
+import 'package:movies/utils/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
