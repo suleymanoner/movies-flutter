@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:movies/constants.dart';
+import 'package:movies/utils/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:movies/widgets/forgot_password.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -34,20 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordAgainController.dispose();
   }
 
-  void _changeSignInUp(String type) {
-    _formKey.currentState?.reset();
-
-    if (type == 'up') {
-      setState(() {
-        _isSignUp = true;
-      });
-    } else if (type == 'in') {
-      setState(() {
-        _isSignUp = false;
-      });
-    }
-  }
-
   void _showError(String error) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -57,13 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future _login() async {
-    /*
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => Center(child: CircularProgressIndicator()));
-        */
-
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -86,8 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
           _isLoginLoading = false;
         });
       }
-
-      // navigatorKey.currentState!.popUntil((route) => route.isCurrent);
     }
   }
 
@@ -100,6 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
         _showError('Password\'s should be match!');
         return;
       }
+
+      setState(() {
+        _isLoginLoading = true;
+      });
 
       try {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -114,30 +96,40 @@ class _LoginScreenState extends State<LoginScreen> {
           'surname': _surnameController.text.trim(),
           'email': _emailController.text.trim(),
         });
+
+        setState(() {
+          _isLoginLoading = false;
+        });
       } on FirebaseAuthException catch (e) {
+        setState(() {
+          _isLoginLoading = false;
+        });
         _showError(e.message!);
       }
     }
+  }
+
+  void _openForgotPassword() {
+    showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => ForgotPassword(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     Widget content = Column(
       children: [
-        const SizedBox(height: 50),
-        Padding(
-          padding: const EdgeInsets.all(6),
-          child: Image.asset(
-            'assets/images/movies_logo.png',
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 3,
-          ),
-        ),
         TextFormField(
           decoration: const InputDecoration(
             label: Text('Email'),
           ),
           style: Theme.of(context).textTheme.bodyMedium,
+          autocorrect: false,
+          textCapitalization: TextCapitalization.none,
+          keyboardType: TextInputType.emailAddress,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Email field can not be empty.';
@@ -148,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
           },
           controller: _emailController,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         TextFormField(
           decoration: const InputDecoration(
             label: Text('Password'),
@@ -169,7 +161,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_isSignUp) {
       content = Column(
         children: [
-          const SizedBox(height: 150),
           TextFormField(
             decoration: const InputDecoration(
               label: Text('Name'),
@@ -183,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             controller: _nameController,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           TextFormField(
             decoration: const InputDecoration(
               label: Text('Surname'),
@@ -197,12 +188,15 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             controller: _surnameController,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           TextFormField(
             decoration: const InputDecoration(
               label: Text('Email'),
             ),
+            keyboardType: TextInputType.emailAddress,
             style: Theme.of(context).textTheme.bodyMedium,
+            autocorrect: false,
+            textCapitalization: TextCapitalization.none,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Email must be entered.';
@@ -213,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             controller: _emailController,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           TextFormField(
             decoration: const InputDecoration(
               label: Text('Password'),
@@ -228,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             obscureText: true,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           TextFormField(
             decoration: const InputDecoration(
               label: Text('Confirm Password'),
@@ -254,46 +248,79 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(children: [
-                    content,
-                    TextButton(
-                        onPressed: () {
-                          _isSignUp
-                              ? _changeSignInUp('in')
-                              : _changeSignInUp('up');
-                          _emailController.text = '';
-                          _passwordController.text = '';
-                        },
-                        child: _isSignUp
-                            ? const Text(
-                                'You have already account? Click to sign-in.')
-                            : const Text(
-                                'You don\'t have an account? Click to sign-up.')),
-                  ]),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Image.asset(
+                      'assets/images/movies_logo.png',
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height / 3.5,
+                    ),
+                  ),
+                  Card(
+                    elevation: 15,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              content,
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isSignUp = !_isSignUp;
+                                  });
+                                  _emailController.text = '';
+                                  _passwordController.text = '';
+                                },
+                                child: _isSignUp
+                                    ? const Text(
+                                        'You already have an account? Click to sign-in.')
+                                    : const Text(
+                                        'You don\'t have an account? Click to sign-up.'),
+                              ),
+                              _isLoginLoading
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          _isSignUp ? _signUp() : _login();
+                                        },
+                                        child: Text(
+                                          _isSignUp ? 'Sign up' : 'Login',
+                                        ),
+                                      ),
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!_isSignUp)
+              TextButton(
+                onPressed: _openForgotPassword,
+                child: Text(
+                  'Forgot Password?',
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
-              _isLoginLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : const SizedBox(),
-              SizedBox(
-                width: 200,
-                child: ElevatedButton(
-                  onPressed: () {
-                    _isSignUp ? _signUp() : _login();
-                  },
-                  child:
-                      _isSignUp ? const Text('Sign up') : const Text('Login'),
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );
