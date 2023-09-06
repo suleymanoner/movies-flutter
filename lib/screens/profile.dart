@@ -30,8 +30,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
   }
 
-  void _signOut() {
+  void _signOut() async {
     FirebaseAuth.instance.signOut();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
   }
 
   void _getUserInfo() async {
@@ -72,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final Reference storageReference = FirebaseStorage.instance
             .ref()
             .child('profile_images')
-            .child(user.email!);
+            .child(user.uid);
 
         final downloadUrl = await storageReference.getDownloadURL();
 
@@ -99,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final Reference storageReference = FirebaseStorage.instance
             .ref()
             .child('profile_images')
-            .child(user.email!);
+            .child(user.uid);
 
         final UploadTask uploadTask = storageReference.putFile(imageFile);
         final TaskSnapshot taskSnapshot = await uploadTask;
@@ -180,25 +182,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
-            ProfileItem(title: 'Name', value: name),
-            ProfileItem(title: 'Surname', value: surname),
-            ProfileItem(title: 'Email', value: user.email!),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton.icon(
-                onPressed: _openChangePassword,
-                icon: const Icon(Icons.change_circle),
-                label: const Text('Change Password'),
-              ),
-            ),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton.icon(
-                onPressed: _signOut,
-                icon: const Icon(Icons.logout),
-                label: const Text('Log out'),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 30),
+                  ProfileItem(title: 'Name', value: name),
+                  ProfileItem(title: 'Surname', value: surname),
+                  ProfileItem(title: 'Email', value: user.email!),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 1.5,
+                    child: ElevatedButton.icon(
+                      onPressed: _openChangePassword,
+                      icon: const Icon(Icons.change_circle),
+                      label: const Text('Change Password'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 1.5,
+                    child: ElevatedButton.icon(
+                      onPressed: _signOut,
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Log out'),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
