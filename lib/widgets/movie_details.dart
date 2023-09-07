@@ -208,12 +208,12 @@ class _MovieDetailsState extends ConsumerState<MovieDetails> {
           },
         ),
         IconButton(
-          onPressed: () {
+          onPressed: () async {
             final wasAdded = ref
                 .read(favoriteMoviesProvider.notifier)
                 .toggleMovieFavoritesStatus(_movie!);
 
-            _showDialog(wasAdded
+            _showDialog(await wasAdded
                 ? '${_movie!.originalTitle} faved!'
                 : '${_movie!.originalTitle} removed!');
           },
@@ -235,7 +235,8 @@ class _MovieDetailsState extends ConsumerState<MovieDetails> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // added because of snackbar wasn't showing on the screen.
+      backgroundColor: Colors
+          .transparent, // added because of snackbar wasn't showing on the screen.
       body: SizedBox(
         height: double.infinity,
         child: _isLoading

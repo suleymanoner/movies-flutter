@@ -4,11 +4,40 @@ import 'package:movies/providers/favorites_provider.dart';
 import 'package:movies/widgets/movie_details.dart';
 import 'package:movies/widgets/search_result_card.dart';
 
-class FavoritesScreen extends ConsumerWidget {
+class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _FavoriteScreenState();
+  }
+}
+
+class _FavoriteScreenState extends ConsumerState<FavoritesScreen> {
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoritesIfEmpty();
+  }
+
+  Future<void> _loadFavoritesIfEmpty() async {
+    final favMovies = ref.read(favoriteMoviesProvider);
+
+    if (favMovies.isEmpty) {
+      setState(() {
+        _isLoading = true;
+      });
+      await ref.read(favoriteMoviesProvider.notifier).fetchFromFirebase();
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final favMovies = ref.watch(favoriteMoviesProvider);
 
     void openDetails(int movId) {
@@ -55,6 +84,10 @@ class FavoritesScreen extends ConsumerWidget {
         'No fav yet..',
         style: Theme.of(context).textTheme.titleLarge,
       ));
+    }
+
+    if (_isLoading) {
+      content = const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
