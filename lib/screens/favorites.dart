@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/providers/favorites_provider.dart';
-import 'package:movies/widgets/movie_details.dart';
-import 'package:movies/widgets/search_result_card.dart';
+import 'package:movies/screens/show_details.dart';
+import 'package:movies/widgets/favorite_item.dart';
+import 'package:movies/widgets/movie/movie_details.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
@@ -24,12 +25,14 @@ class _FavoriteScreenState extends ConsumerState<FavoritesScreen> {
 
   Future<void> _loadFavoritesIfEmpty() async {
     final favMovies = ref.read(favoriteMoviesProvider);
+    final favShows = ref.read(favoriteShowsProvider);
 
-    if (favMovies.isEmpty) {
+    if (favMovies.isEmpty && favShows.isEmpty) {
       setState(() {
         _isLoading = true;
       });
       await ref.read(favoriteMoviesProvider.notifier).fetchFromFirebase();
+      await ref.read(favoriteShowsProvider.notifier).fetchFromFirebase();
       setState(() {
         _isLoading = false;
       });
@@ -39,8 +42,9 @@ class _FavoriteScreenState extends ConsumerState<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     final favMovies = ref.watch(favoriteMoviesProvider);
+    final favShows = ref.watch(favoriteShowsProvider);
 
-    void openDetails(int movId) {
+    void openMovieDetails(int movId) {
       showModalBottomSheet(
         useSafeArea: true,
         isScrollControlled: true,
@@ -49,45 +53,89 @@ class _FavoriteScreenState extends ConsumerState<FavoritesScreen> {
       );
     }
 
-    Widget content = ListView.builder(
-      itemCount: favMovies.length,
-      itemBuilder: (ctx, index) {
-        return Dismissible(
-          key: ValueKey(favMovies[index].id),
+    void openShowDetails(int id) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) {
+          return ShowDetailsScreen(id: id);
+        },
+      ));
+    }
+
+    List<Widget> favoritesList = [];
+
+    for (var movie in favMovies) {
+      favoritesList.add(
+        Dismissible(
+          key: ValueKey(movie.id),
           onDismissed: (direction) {
             ref
                 .read(favoriteMoviesProvider.notifier)
-                .toggleMovieFavoritesStatus(favMovies[index]);
+                .toggleMovieFavoritesStatus(movie);
 
             ScaffoldMessenger.of(context).clearSnackBars();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('${favMovies[index].originalTitle} unfaved!'),
+                content: Text('${movie.originalTitle} unfaved!'),
                 backgroundColor: Theme.of(context).colorScheme.primary,
               ),
             );
           },
-          child: SearchResultCard(
-            title: favMovies[index].originalTitle,
-            imgPath: favMovies[index].posterPath,
+          child: FavoriteItem(
+            title: movie.originalTitle,
+            imgPath: movie.posterPath,
             onTapResult: () {
-              openDetails(favMovies[index].id);
+              openMovieDetails(movie.id);
             },
           ),
-        );
-      },
-    );
+        ),
+      );
+    }
 
-    if (favMovies.isEmpty) {
+    for (var show in favShows) {
+      favoritesList.add(
+        Dismissible(
+          key: ValueKey(show.id),
+          onDismissed: (direction) {
+            ref
+                .read(favoriteShowsProvider.notifier)
+                .toggleShowFavoritesStatus(show);
+
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${show.originalName} unfaved!'),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+            );
+          },
+          child: FavoriteItem(
+            title: show.originalName,
+            imgPath: show.posterPath,
+            onTapResult: () {
+              openShowDetails(show.id);
+            },
+          ),
+        ),
+      );
+    }
+
+    Widget content;
+
+    if (favMovies.isEmpty && favShows.isEmpty) {
       content = Center(
-          child: Text(
-        'No fav yet..',
-        style: Theme.of(context).textTheme.titleLarge,
-      ));
+        child: Text(
+          'No fav yet..',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      );
+    } else {
+      content = ListView(
+        children: favoritesList,
+      );
     }
 
     if (_isLoading) {
-      content = const Center(child: CircularProgressIndicator());
+      content = Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
