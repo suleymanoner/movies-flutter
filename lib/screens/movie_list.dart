@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:movies/models/movie.dart';
+import 'package:movies/models/tv_show.dart';
 import 'package:movies/providers/movies_provider.dart';
-import 'package:movies/widgets/movie_card.dart';
-import 'package:movies/widgets/movie_details.dart';
+import 'package:movies/providers/tv_shows_provider.dart';
+import 'package:movies/screens/show_details.dart';
+import 'package:movies/widgets/movie/movie_card.dart';
+import 'package:movies/widgets/movie/movie_details.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:movies/widgets/show/show_card.dart';
 
 class MovieListScreen extends ConsumerStatefulWidget {
   const MovieListScreen({
@@ -26,21 +30,29 @@ class _MovieListScreenState extends ConsumerState<MovieListScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchMovies();
+    _fetchMoviesOrShows();
   }
 
-  Future<void> _fetchMovies() async {
+  Future<void> _fetchMoviesOrShows() async {
     try {
-      if (widget.type == 'Now Playing') {
+      if (widget.type == 'Now Playing Movies') {
         ref.read(nowPlayingMoviesProvider.notifier).fetchNowPlayingMovies(page);
-      } else if (widget.type == 'Top Rated') {
+      } else if (widget.type == 'Top Rated Movies') {
         ref.read(topRatedMoviesProvider.notifier).fetchTopRatedMovies(page);
-      } else if (widget.type == 'Popular') {
+      } else if (widget.type == 'Popular Movies') {
         ref.read(popularMoviesProvider.notifier).fetchPopularMovies(page);
-      } else if (widget.type == 'Upcmoming') {
+      } else if (widget.type == 'Upcmoming Movies') {
         ref.read(upcomingMoviesProvider.notifier).fetchUpcomingMovies(page);
+      } else if (widget.type == 'On The Air Shows') {
+        ref.read(onTheAirProvider.notifier).fetchOnTheAirShows(page);
+      } else if (widget.type == 'Top Rated Shows') {
+        ref.read(topRatedShowsProvider.notifier).fetchTopRatedShows(page);
+      } else if (widget.type == 'Airing Today Shows') {
+        ref.read(airingTodayShowsProvider.notifier).fetchUAiringShows(page);
+      } else if (widget.type == 'Popular Shows') {
+        ref.read(popularShowsProvider.notifier).fetchPopularShows(page);
       } else {
-        ref.read(nowPlayingMoviesProvider.notifier).fetchNowPlayingMovies(page);
+        ref.read(popularShowsProvider.notifier).fetchPopularShows(page);
       }
 
       setState(() {
@@ -54,33 +66,54 @@ class _MovieListScreenState extends ConsumerState<MovieListScreen> {
     }
   }
 
-  void _openDetails(int movId) {
-    showModalBottomSheet(
-      useSafeArea: true,
-      isScrollControlled: true,
-      context: context,
-      builder: (ctx) => MovieDetails(id: movId),
-    );
+  void _openDetails(int id) {
+    if (widget.type.contains('Shows')) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) {
+          return ShowDetailsScreen(id: id);
+        },
+      ));
+    } else {
+      showModalBottomSheet(
+        useSafeArea: true,
+        isScrollControlled: true,
+        context: context,
+        builder: (ctx) => MovieDetails(id: id),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Movie> movies = [];
+    List<dynamic> moviesOrShows = [];
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final topRatedMovies = ref.watch(topRatedMoviesProvider);
     final upcomingMovies = ref.watch(upcomingMoviesProvider);
     final popularMovies = ref.watch(popularMoviesProvider);
 
-    if (widget.type == 'Now Playing') {
-      movies = nowPlayingMovies;
-    } else if (widget.type == 'Top Rated') {
-      movies = topRatedMovies;
-    } else if (widget.type == 'Popular') {
-      movies = popularMovies;
-    } else if (widget.type == 'Upcoming') {
-      movies = upcomingMovies;
+    final onTheAirShows = ref.watch(onTheAirProvider);
+    final airingTodayShows = ref.watch(airingTodayShowsProvider);
+    final topRatedShows = ref.watch(topRatedShowsProvider);
+    final popularShows = ref.watch(popularShowsProvider);
+
+    if (widget.type == 'Now Playing Movies') {
+      moviesOrShows = nowPlayingMovies;
+    } else if (widget.type == 'Top Rated Movies') {
+      moviesOrShows = topRatedMovies;
+    } else if (widget.type == 'Popular Movies') {
+      moviesOrShows = popularMovies;
+    } else if (widget.type == 'Upcoming Movies') {
+      moviesOrShows = upcomingMovies;
+    } else if (widget.type == 'On The Air Shows') {
+      moviesOrShows = onTheAirShows;
+    } else if (widget.type == 'Top Rated Shows') {
+      moviesOrShows = topRatedShows;
+    } else if (widget.type == 'Airing Today Shows') {
+      moviesOrShows = airingTodayShows;
+    } else if (widget.type == 'Popular Shows') {
+      moviesOrShows = popularShows;
     } else {
-      movies = nowPlayingMovies;
+      moviesOrShows = topRatedShows;
     }
 
     Widget content = _isLoading
@@ -92,21 +125,29 @@ class _MovieListScreenState extends ConsumerState<MovieListScreen> {
                 setState(() {
                   page = page + 1;
                 });
-                _fetchMovies();
+                _fetchMoviesOrShows();
               }
               return false;
             },
             child: ListView.builder(
               controller: _scrollController,
-              itemCount: movies.length,
+              itemCount: moviesOrShows.length,
               itemBuilder: (ctx, index) {
                 if (errMsg != '') {
                   return Center(child: Text(errMsg));
                 }
+
+                if (widget.type.contains('Shows')) {
+                  return ShowCard(
+                      show: moviesOrShows[index],
+                      onTapShow: () {
+                        _openDetails(moviesOrShows[index].id);
+                      });
+                }
                 return MovieCard(
-                  movie: movies[index],
+                  movie: moviesOrShows[index],
                   onTapMovie: () {
-                    _openDetails(movies[index].id);
+                    _openDetails(moviesOrShows[index].id);
                   },
                 );
               },
@@ -124,7 +165,7 @@ class _MovieListScreenState extends ConsumerState<MovieListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.type} Movies'),
+        title: Text(widget.type),
       ),
       body: content,
     );

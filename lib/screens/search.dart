@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:movies/models/movie.dart';
+import 'package:movies/models/tv_show.dart';
+import 'package:movies/screens/show_details.dart';
 import 'package:movies/services/api_service.dart';
-import 'package:movies/widgets/movie_details.dart';
+import 'package:movies/utils/constants.dart';
+import 'package:movies/widgets/movie/movie_details.dart';
 import 'package:movies/widgets/search_result_card.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -15,7 +18,9 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final queryController = TextEditingController();
-  List<Movie> searchResults = [];
+  List<Movie> searchMovieResults = [];
+  List<TvShow> searchShowResults = [];
+
   bool _isLoading = false;
   String _errMsg = '';
 
@@ -31,10 +36,12 @@ class _SearchScreenState extends State<SearchScreen> {
         _isLoading = true;
       });
 
-      final queryResults = await ApiService.searchMovie(query);
+      final movieResults = await ApiService.searchMovie(query);
+      final showResults = await ApiService.searchShow(query);
 
       setState(() {
-        searchResults = queryResults;
+        searchMovieResults = movieResults;
+        searchShowResults = showResults;
         _isLoading = false;
       });
     } catch (error) {
@@ -45,7 +52,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  void _openDetails(int movId) {
+  void _openMovieDetails(int movId) {
     showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,
@@ -54,25 +61,56 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void _openShowDetails(int id) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) {
+        return ShowDetailsScreen(id: id);
+      },
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget content = ListView.builder(
-      itemCount: searchResults.length,
-      itemBuilder: (ctx, index) {
-        if (_errMsg != '') {
-          return Center(child: Text(_errMsg));
-        }
-        return SearchResultCard(
-          title: searchResults[index].originalTitle,
-          imgPath: searchResults[index].posterPath,
-          onTapResult: () {
-            _openDetails(searchResults[index].id);
-          },
-        );
-      },
+    Widget content = Row(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: searchMovieResults.length,
+            itemBuilder: (ctx, index) {
+              if (_errMsg != '') {
+                return Center(child: Text(_errMsg));
+              }
+
+              return SearchResultCard(
+                  title: searchMovieResults[index].originalTitle,
+                  imgPath: searchMovieResults[index].posterPath,
+                  onTapResult: () {
+                    _openMovieDetails(searchMovieResults[index].id);
+                  });
+            },
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: searchShowResults.length,
+            itemBuilder: (ctx, index) {
+              if (_errMsg != '') {
+                return Center(child: Text(_errMsg));
+              }
+
+              return SearchResultCard(
+                  title: searchShowResults[index].originalName,
+                  imgPath: searchShowResults[index].posterPath,
+                  onTapResult: () {
+                    _openShowDetails(searchShowResults[index].id);
+                  });
+            },
+          ),
+        ),
+      ],
     );
 
-    if (searchResults.isEmpty) {
+    if (searchMovieResults.isEmpty && searchShowResults.isEmpty) {
       content = Center(
         child: Text(
           'No results..',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movies/models/movie.dart';
-import 'package:movies/widgets/movie_details.dart';
+import 'package:movies/screens/show_details.dart';
+import 'package:movies/widgets/movie/movie_details.dart';
 import 'package:movies/widgets/carousel_item.dart';
 
 class MovieCarouselItem extends StatelessWidget {
@@ -8,12 +9,14 @@ class MovieCarouselItem extends StatelessWidget {
     super.key,
     required this.title,
     required this.onTapTitle,
-    required this.movieList,
+    required this.list,
+    this.isMovie = true,
   });
 
   final String title;
   final void Function() onTapTitle;
-  final List<Movie> movieList;
+  final List list;
+  final bool isMovie;
 
   @override
   Widget build(BuildContext context) {
@@ -38,14 +41,20 @@ class MovieCarouselItem extends StatelessWidget {
           ),
         ),
         CarouselItem(
-          movies: movieList,
+          movies: list,
           onTapMovie: (id) {
-            showModalBottomSheet(
-              useSafeArea: true,
-              isScrollControlled: true,
-              context: context,
-              builder: (ctx) => MovieDetails(id: id),
-            );
+            isMovie
+                ? showModalBottomSheet(
+                    useSafeArea: true,
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (ctx) => MovieDetails(id: id),
+                  )
+                : Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) {
+                      return ShowDetailsScreen(id: id);
+                    },
+                  ));
           },
         ),
         const SizedBox(height: 10),

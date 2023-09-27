@@ -10,7 +10,7 @@ class CarouselItem extends StatelessWidget {
     required this.onTapMovie,
   });
 
-  final List<Movie> movies;
+  final List movies;
   final void Function(int id) onTapMovie;
 
   @override

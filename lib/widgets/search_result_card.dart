@@ -18,36 +18,22 @@ class SearchResultCard extends StatelessWidget {
     return InkWell(
       onTap: onTapResult,
       child: Card(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
+        child: Column(
           children: [
-            ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: imgPath.isNotEmpty
-                    ? Image.network(
-                        Constants.BASE_IMG_URL + imgPath,
-                        width: 100,
-                        height: 150,
-                        fit: BoxFit.cover,
-                      )
-                    : Image.asset(
-                        'assets/images/broken_image.png',
-                        width: 100,
-                        height: 150,
-                        fit: BoxFit.cover,
-                      )),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 15),
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontSize: 18,
-                      ),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: imgPath.isNotEmpty
+                  ? Image.network(
+                      Constants.BASE_IMG_URL + imgPath,
+                      width: 100,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset('assets/images/broken_image.png'),
+            ),
+            Text(
+              title,
+              textAlign: TextAlign.center,
             ),
           ],
         ),
