@@ -33,7 +33,7 @@ class _MovieDetailsState extends ConsumerState<MovieDetails> {
 
   Future<void> _getIndvMovie() async {
     try {
-      final indvMovie = await ApiService.getIndv(widget.id.toString());
+      final indvMovie = await ApiService.getIndvMovie(widget.id.toString());
       setState(() {
         _movie = indvMovie;
         _isLoading = false;
@@ -82,7 +82,7 @@ class _MovieDetailsState extends ConsumerState<MovieDetails> {
       content = Column(
         children: [
           Container(
-            child: _movie!.posterPath.isNotEmpty
+            child: _movie!.backdropPath.isNotEmpty
                 ? Image.network(
                     Constants.BASE_IMG_URL + _movie!.backdropPath,
                     width: double.infinity,
@@ -105,7 +105,7 @@ class _MovieDetailsState extends ConsumerState<MovieDetails> {
           const SizedBox(height: 6),
           _movie!.tagline.isNotEmpty
               ? Text(
-                  "'${_movie!.tagline}'",
+                  "* ${_movie!.tagline} *",
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontSize: 16,
                       ),

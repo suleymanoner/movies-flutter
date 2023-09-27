@@ -4,14 +4,14 @@ import 'package:movies/widgets/movie_carousel_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/providers/movies_provider.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+class MoviesScreen extends ConsumerStatefulWidget {
+  const MoviesScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<MoviesScreen> createState() => _MoviesScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _MoviesScreenState extends ConsumerState<MoviesScreen> {
   String _errMsg = '';
   bool _isLoading = false;
 
@@ -65,30 +65,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         MovieCarouselItem(
           title: 'Now Playing',
           onTapTitle: () {
-            _goMovieList('Now Playing');
+            _goMovieList('Now Playing Movies');
           },
-          movieList: nowPlayingMoviess,
+          list: nowPlayingMoviess,
         ),
         MovieCarouselItem(
           title: 'Top Rated',
           onTapTitle: () {
-            _goMovieList('Top Rated');
+            _goMovieList('Top Rated Movies');
           },
-          movieList: topRatedMoviess,
+          list: topRatedMoviess,
         ),
         MovieCarouselItem(
           title: 'Upcoming',
           onTapTitle: () {
-            _goMovieList('Upcoming');
+            _goMovieList('Upcoming Movies');
           },
-          movieList: upcomingMoviess,
+          list: upcomingMoviess,
         ),
         MovieCarouselItem(
           title: 'Popular',
           onTapTitle: () {
-            _goMovieList('Popular');
+            _goMovieList('Popular Movies');
           },
-          movieList: popularMoviess,
+          list: popularMoviess,
         ),
       ],
     );
